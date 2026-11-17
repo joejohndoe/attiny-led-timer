@@ -1,0 +1,24 @@
+# KiCad local/user files
+*.kicad_prl
+*.lck
+~*
+fp-info-cache
+*-backups/
+*.bak
+_autosave-*
+\#auto_saved_files#
+
+# Vendor 3D models (not redistributable; see README)
+hardware/3dmodels/
+
+# Fabrication outputs (generate from KiCad)
+hardware/gerber/
+hardware/plot/
+
+# Arduino build output
+build/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
