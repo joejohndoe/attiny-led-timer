@@ -1,6 +1,6 @@
 # ATtiny LED Timer
 
-A timer circuit that switches an LED light (like an LED string) on a fixed daily schedule.
+A timer circuit that switches an LED light (like an LED string) on a fixed daily schedule. The circuit is designed to be battery-powered and thus optimized for power efficiency. 
 
 A 14-pin Microchip tinyAVR 1 MCU (e.g. ATtiny414) keeps time with a 32.768 kHz watch crystal with < 2s drift per day. It spends most of the time in power-down sleep, resulting in a low 4 µA average current draw for the MCU. A PAM2804 constant-current buck driver powers the LED. The circuit is designed for two separate power rails: a CR1220/CR1225 coin cell for the MCU and an external Li-Ion battery pack for the LEDs, chargeable via a DC power jack. This split allows the MCU to keep the time while the battery pack is charging, without any risk of interference.
 
@@ -25,13 +25,20 @@ Schematic and PCB are available in `hardware/attiny-led-timer.kicad_pro` in KiCa
 
 The LED driver is built for LEDs with a forward voltage of 2.7V. The current can be set via sense resistor R1. A resistance of 1.65 Ohms results in a current of roughly 60 mA - see below for instructions on how to compute the resistor value. The LEDs are powered by a power source of 3-6 V wired to the BAT+/- pads. I'm using three 18650 Li-Ion batteries in parallel, which last for roughly 170 h of LED on-time, i.e. about 16 days with the default schedule (10.5 h on per day). The DC power jack connector can be used to charge the batteries (with an appropriate charger). It switches BAT- away from the circuit's GND when connected to isolate the circuit during charging - this means you can't power the LEDs from the DC connector directly (unless you short the ground switch).
 
-#### Computing the sense resistor value
+#### Adapting to your LED light
 
 The current flowing through the LED output is determined by the value of the sense resistor, R1. The PAM2804 regulates the voltage across R1 to its feedback voltage of 0.1 V, so:
 
 ```
 R1 = 0.1 V / I_LED        I_LED = 0.1 V / R1
 ```
+
+To match it to your LEDs, first measure the forward voltage (voltage drop across the two leads when powered) of the LEDs. It should be lower than the supply voltage by some margin. Otherwise, the LED driver won't be able to provide the chosen current, and thus the LEDs will be dimmer than intended. 
+
+Then measure the current draw of the LEDs, or determine the desired current (-> brightness) with a bench power supply in CC mode. Calculate the sense resistor value using the above formula. 
+
+The constant current approach is most appropriate for LED lights that don't already have a current-limiting resistor built in. LED strips (the flat kind with adhesive tape on the back) often come with current-limiting resistors. You could still use the circuit at hand to control the brightness/power consumption, but the power loss across the resistors will limit the overall efficiency.
+
 ### Controller
 
 The circuit and code works with any of the 14-pin microcontrollers of the Microchip tinyAVR 1 family: from ATtiny214 to ATtiny3214. The code fits into the ATtiny414 and up (about 2.1 KB of flash). It is slightly too big for the 2 KB of the ATtiny214, but can be made to fit, e.g. by replacing `attachInterrupt()` with a direct pin-change ISR.
